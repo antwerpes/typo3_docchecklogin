@@ -18,7 +18,8 @@
     "license": "MIT",
     "require": {
         "ext-curl": "*",
-        "typo3/cms-core": "^11.5 || ^12"
+        "typo3/cms-core": "^11.5 || ^12",
+        "php": ">=7.4 || ~8.1"
     },
     "require-dev": {
         "typo3/testing-framework": "^6.9.0"
