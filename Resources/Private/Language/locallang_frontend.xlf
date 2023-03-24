@@ -9,6 +9,9 @@
 			<trans-unit id="logout" resname="logout">
 				<source>Logout</source>
 			</trans-unit>
+			<trans-unit id="error.message.dcParam.empty" resname="error.message.dcParam.empty">
+				<source>Logout</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

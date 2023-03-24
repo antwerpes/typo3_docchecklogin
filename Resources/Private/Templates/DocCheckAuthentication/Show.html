@@ -1,37 +1,13 @@
 <f:if condition="{configError}">
     <f:then>
-        <div>
-            Please check your config!
-        </div>
-        <ul>
-            <f:if condition="{configError.dcParam} == 'empty'">
-                <li>dcParam is empty</li>
-            </f:if>
-            <f:if condition="{configError.dummyUser} == 'empty'">
-                <li>dummyUser is empty</li>
-            </f:if>
-            <f:if condition="{configError.dummyUser} == 'not found'">
-                <li>dummyUser not found</li>
-            </f:if>
-            <f:if condition="{configError.dummyUserPid} == 'empty'">
-                <li>dummyUserPid is empty</li>
-            </f:if>
-            <f:if condition="{configError.dummyUserPid} == 'not found'">
-                <li>dummyUserPid not found</li>
-            </f:if>
-            <f:if condition="{configError.clientSecret} == 'empty'">
-                <li>clientSecret is empty</li>
-            </f:if>
-            <f:if condition="{configError.uniqueKeyGroup} == 'empty'">
-                <li>uniqueKeyGroup is empty</li>
-            </f:if>
-            <f:if condition="{configError.uniqueKeyGroup} == 'not found'">
-                <li>uniqueKeyGroup not found</li>
-            </f:if>
-            <f:if condition="{configError.routingMap} == 'empty'">
-                <li>routingMap is empty</li>
-            </f:if>
-        </ul>
+        <b><f:translate key="error.message.title" /></b>
+        <f:flashMessages as="flashMessages">
+            <ul class="messages">
+                <f:for each="{flashMessages}" as="flashMessage">
+                    <li>{flashMessage.message}</li>
+                </f:for>
+            </ul>
+        </f:flashMessages>
     </f:then>
     <f:else>
         <f:if condition="{loggedIn}">
@@ -44,5 +20,3 @@
         </f:if>
     </f:else>
 </f:if>
-
-

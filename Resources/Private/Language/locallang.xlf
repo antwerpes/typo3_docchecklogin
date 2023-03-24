@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2021-03-08UTC07:32:040">
+        <header>
+            <authorName>Sabrina Zwirner</authorName>
+            <authorEmail>sabrina.zwirner@antwerpes.com</authorEmail>
+        </header>
+        <body>
+            <trans-unit id="error.message.title" resname="error.message.title">
+                <source>Please check your Extension Settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.dcParam.empty" resname="error.message.dcParam.empty">
+                <source>Please configure a "dcParam" in the Extension Settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.dummyUser.empty" resname="error.message.dummyUser.empty">
+                <source>Please configure a "dummyUser" in the Extension Settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.dummyUser.notfound" resname="error.message.dummyUser.notfound">
+                <source>The "dummyUser" could not be found in the fe_user table</source>
+            </trans-unit>
+            <trans-unit id="error.message.dummyUserPid.empty" resname="error.message.dummyUserPid.empty">
+                <source>Please configure a "dummyUserPid" in the Extension Settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.dummyUserPid.notfound" resname="error.message.dummyUserPid.notfound">
+                <source>The "dummyUserPid" could not be resolved to an existing page.</source>
+            </trans-unit>
+            <trans-unit id="error.message.clientSecret.empty" resname="error.message.clientSecret.empty">
+                <source>You enabled the UniqueKey-Feature. For this Feature to work you need to configure a "clienSecret" in the Extension settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.uniqueKeyGroup.empty" resname="error.message.uniqueKeyGroup.empty">
+                <source>You enabled the UniqueKey-Feature. For this Feature to work you need to configure a "uniqueKeyGroup" in the Extension settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.uniqueKeyGroup.notfound" resname="error.message.dummyUserPid.notfound">
+                <source>The "uniqueKeyGroup" could not be resolved to an existing usergroup.</source>
+            </trans-unit>
+            <trans-unit id="error.message.routingMap.empty" resname="error.message.routingMap.empty">
+                <source>You enabled the Routing-Feature. For this Feature to work you need to configure a "routingMap" in the Extension settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.crawlingIP.empty" resname="error.message.crawlingIP.empty">
+                <source>You enabled the crawling Feature. For this Feature to work you need to configure a "crawlingIP" in the Extension settings.</source>
+            </trans-unit>
+            <trans-unit id="error.message.dcPersonalEnable.error" resname="error.message.dcPersonalEnable.error">
+                <source>You enabled the DcPersonal-Feature. For this Feature to work you need to configure also the UniqueKey-Feature.</source>
+            </trans-unit>
+            <trans-unit id="error.message.crawlingUser.empty" resname="error.message.crawlingUser.empty">
+                <source>You enabled the Routing-Feature. For this Feature to work you need to configure a "dummyUser" and/or a "crawlingUser".</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
