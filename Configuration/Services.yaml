@@ -7,3 +7,10 @@ services:
 
   Antwerpes\Typo3Docchecklogin\:
     resource: '../Classes/*'
+
+  Antwerpes\Typo3Docchecklogin\Services\DocCheckAuthenticationService:
+    arguments:
+      - '@TYPO3\CMS\Extbase\Configuration\ConfigurationManager'
+      - '@TYPO3\CMS\Core\TypoScript\TypoScriptService'
+      - '@TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer'
+    public: true
