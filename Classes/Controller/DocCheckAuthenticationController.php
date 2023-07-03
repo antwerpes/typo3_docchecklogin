@@ -30,7 +30,6 @@ namespace Antwerpes\Typo3Docchecklogin\Controller;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  */
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
 use Psr\Http\Message\ResponseInterface;
@@ -39,7 +38,7 @@ use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
@@ -117,9 +116,6 @@ class DocCheckAuthenticationController extends ActionController
         }
     }
 
-    /**
-     * @param $getParameter
-     */
     public function loggedOut($getParameter): void
     {
         $settings = $this->settings;
@@ -193,12 +189,7 @@ class DocCheckAuthenticationController extends ActionController
 
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
             $statement = $queryBuilder->select('felogin_redirectPid')
-                ->from('fe_groups')
-                ->where(
-                    $queryBuilder->expr()->isNotNull('felogin_redirectPid'),
-                    $queryBuilder->expr()->eq('uid', $firstUserGroup),
-                )
-                ->execute()->fetchAssociative();
+                ->from('fe_groups')->where($queryBuilder->expr()->isNotNull('felogin_redirectPid'), $queryBuilder->expr()->eq('uid', $firstUserGroup))->executeQuery()->fetchAssociative();
             $redirectToPid = $statement['felogin_redirectPid'];
         }
 
@@ -240,11 +231,7 @@ class DocCheckAuthenticationController extends ActionController
                 // check if dummy User exists
                 $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
                 $statement = $queryBuilder->select('uid')
-                    ->from('fe_users')
-                    ->where(
-                        $queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($this->extConf['dummyUser'])),
-                    )
-                    ->execute()->fetchAssociative();
+                    ->from('fe_users')->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($this->extConf['dummyUser'])))->executeQuery()->fetchAssociative();
 
                 if (! $statement) {
                     $this->addFlashMessage(
@@ -303,11 +290,7 @@ class DocCheckAuthenticationController extends ActionController
             // check if usergroup exists
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
             $statement = $queryBuilder->select('uid')
-                ->from('fe_groups')
-                ->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter((int) $this->extConf['uniqueKeyGroup'])),
-                )
-                ->execute()->fetchAssociative();
+                ->from('fe_groups')->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter((int) $this->extConf['uniqueKeyGroup'])))->executeQuery()->fetchAssociative();
 
             if (! $statement) {
                 $this->addFlashMessage(

@@ -45,7 +45,7 @@ defined('TYPO3') || exit;
         // Service type
         'auth',
         // Service key
-        'Antwerpes\\Typo3Docchecklogin\\Service\\DocCheckAuthenticationService',
+        \Antwerpes\Typo3Docchecklogin\Service\DocCheckAuthenticationService::class,
         [
             'title' => 'DocCheck Authentication Service',
             'description' => 'Authenticates users through the DocCheck Authentication Service',
