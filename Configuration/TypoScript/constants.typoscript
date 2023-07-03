@@ -1,10 +1,14 @@
 plugin.tx_typo3docchecklogin {
     view {
-        # cat=plugin.tx_typo3docchecklogin/file; type=string; label=Path to template root (FE)
-        templateRootPath = EXT:typo3_docchecklogin/Resources/Private/Templates/
-        # cat=plugin.tx_typo3docchecklogin/file; type=string; label=Path to template partials (FE)
-        partialRootPath = EXT:typo3_docchecklogin/Resources/Private/Partials/
-        # cat=plugin.tx_typo3docchecklogin/file; type=string; label=Path to template layouts (FE)
-        layoutRootPath = EXT:typo3_docchecklogin/Resources/Private/Layouts/
+        # Overwrite the template Root Path
+        templateRootPath =
+        # Overwrite the partial Root Path
+        partialRootPath =
+        # Overwrite the layout Root Path
+        layoutRootPath =
+    }
+    settings {
+        // This numeric parameter overrides the used Doccheck Login ID. Especially useful for working in multiple environments.
+        loginOverrideId =
     }
 }

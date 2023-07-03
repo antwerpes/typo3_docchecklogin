@@ -22,6 +22,7 @@
         "typo3/cms-core": "^11.5 || ^12"
     },
     "require-dev": {
+        "typo3/tailor": "^1.5",
         "typo3/testing-framework": "^6.9.0"
     },
     "autoload": {
@@ -40,7 +41,11 @@
     "config": {
         "sort-packages": true,
         "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
+        "bin-dir": ".Build/bin",
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
     },
     "scripts": {
         "post-autoload-dump": [
