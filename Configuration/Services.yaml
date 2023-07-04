@@ -14,3 +14,8 @@ services:
       - '@TYPO3\CMS\Core\TypoScript\TypoScriptService'
       - '@TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer'
     public: true
+
+  Antwerpes\Typo3Docchecklogin\EventListener\DoccheckRequestTokenEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'my-extension/process-request-token-listener'

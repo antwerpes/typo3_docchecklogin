@@ -69,6 +69,7 @@ class LoginMiddleware implements MiddlewareInterface
      * Login a tmp User for current page.
      *
      * @param mixed $username
+     * @param mixed $request
      */
     protected function loginTmpUser($request, $username): void
     {
