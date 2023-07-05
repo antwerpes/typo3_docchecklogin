@@ -2,11 +2,24 @@
 
 use Antwerpes\Typo3Docchecklogin\Controller\DocCheckAuthenticationController;
 use Antwerpes\Typo3Docchecklogin\Service\DocCheckAuthenticationService;
+use TYPO3\CMS\Core\Log\Writer\FileWriter;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 defined('TYPO3') || exit;
 (function (): void {
+
+    $GLOBALS['TYPO3_CONF_VARS']['LOG']['Antwerpes']['Typo3Docchecklogin']['Controller']['writerConfiguration'] = [
+        // configuration for ERROR level log entries
+        \TYPO3\CMS\Core\Log\LogLevel::ERROR => [
+            // add a FileWriter
+            \TYPO3\CMS\Core\Log\Writer\FileWriter::class => [
+                // configuration for the writer
+                'logFile' => \TYPO3\CMS\Core\Core\Environment::getVarPath().'/log/typo3_docchecklogin.log',
+            ],
+        ],
+    ];
+
     ExtensionUtility::configurePlugin(
         'Typo3Docchecklogin',
         'DocCheckAuthentication',

@@ -3,11 +3,14 @@
     <file source-language="en" datatype="plaintext" original="messages" date="2021-03-08UTC07:32:040">
         <header>
             <authorName>Sabrina Zwirner</authorName>
-            <authorEmail>sabrina.zwirner@antwerpes.com</authorEmail>
+            <authorEmail>opensource@antwerpes.com</authorEmail>
         </header>
         <body>
             <trans-unit id="error.message.title" resname="error.message.title">
-                <source>Please check your Extension Settings.</source>
+                <source>There was a configuration mistake.</source>
+            </trans-unit>
+            <trans-unit id="error.message.text" resname="error.message.text">
+                <source>Please check the log files for detailed information.</source>
             </trans-unit>
             <trans-unit id="error.message.dcParam.empty" resname="error.message.dcParam.empty">
                 <source>Please configure a "dcParam" in the Extension Settings.</source>

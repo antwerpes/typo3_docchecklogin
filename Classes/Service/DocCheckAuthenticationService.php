@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Crypto\PasswordHashing\PasswordHashFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 
 class DocCheckAuthenticationService extends AuthenticationService
 {
@@ -23,8 +24,10 @@ class DocCheckAuthenticationService extends AuthenticationService
 
     public function initAuth($mode, $loginData, $authInfo, $pObj): void
     {
+        // DEPRECATED in Version 12
         $authInfo['db_user']['checkPidList'] = $this->extConf['dummyUserPid'];
         $authInfo['db_user']['check_pid_clause'] = ' AND pid = '.$authInfo['db_user']['checkPidList'].' ';
+
         parent::initAuth($mode, $loginData, $authInfo, $pObj);
     }
 
@@ -43,7 +46,7 @@ class DocCheckAuthenticationService extends AuthenticationService
         $dcClientSecret = $this->extConf['clientSecret'] ?? null;
 
         // if no dc param is given - let's not even bother getting the dummy user
-        if (! $dcVal) {
+        if (!$dcVal) {
             return false;
         }
 
@@ -53,6 +56,7 @@ class DocCheckAuthenticationService extends AuthenticationService
         } else {
             $user = $this->getDummyUser();
         }
+
 
         return $user;
     }
@@ -76,6 +80,10 @@ class DocCheckAuthenticationService extends AuthenticationService
         $dcVal = $_GET['dc'] ?? null;
         $dcCode = $_GET['code'] ?? null;
         $dcClientSecret = $this->extConf['clientSecret'] ?? null;
+
+        if (!$dcVal) {
+            return 100;
+        }
 
         // Check if needed Parameter for oauth are given
         // Else try to auth the Dummyuser
@@ -110,16 +118,15 @@ class DocCheckAuthenticationService extends AuthenticationService
             $oauth = new OauthUtility();
             $authenticateUser = $oauth->validateToken($dcLoginId, $dcClientSecret, $dcCode);
 
-            if (! $authenticateUser) {
-                throw new Exception('DocCheck Authentication: User coudnt get authenticated.');
+            if (!$authenticateUser) {
+                throw new Exception('DocCheck Authentication: User couldn\'t get authenticated.');
             }
 
             $userData = $oauth->getUserData();
         }
 
         $uniqKey = $_GET['uniquekey'] ?? null;
-
-        if (! $this->isValidMd5($uniqKey)) {
+        if (!$this->isValidMd5($uniqKey)) {
             throw new Exception('DocCheck Authentication: Unique key is not valid.');
         }
         $group = $this->getUniqueUserGroupId($dcVal);
@@ -128,7 +135,7 @@ class DocCheckAuthenticationService extends AuthenticationService
         $username = 'dc_'.$uniqKey;
         $userObject = $this->fetchUserRecord($username);
 
-        if (! $userObject) {
+        if (!$userObject) {
             // else: we don't have a record for this user yet
             $userObject = $this->createUserRecord($username, $group, $this->extConf['dummyUserPid']);
         }
@@ -254,7 +261,7 @@ class DocCheckAuthenticationService extends AuthenticationService
             foreach ($updateArr as $updKey => $updVal) {
                 $queryBuilder->set($updKey, $updVal);
             }
-            $queryBuilder->execute();
+            $queryBuilder->executeStatement();
         }
 
         return $user;
@@ -272,21 +279,28 @@ class DocCheckAuthenticationService extends AuthenticationService
      */
     protected function getUniqueUserGroupId($dcVal)
     {
-        $grp = $this->fetchDummyUserGroup($this->extConf['dummyUser'], (int) $this->extConf['dummyUserPid']);
+        $grp = null;
+
         // is routing enabled?
         if ($this->extConf['routingEnable']) {
             $grp = $this->getRoutedGroupId($dcVal);
+        }
 
-            if (null === $grp) {
-                $grp = $this->fetchDummyUserGroup($this->extConf['dummyUser'], (int) $this->extConf['dummyUserPid']);
+        //Is no group found use the DummyUser Group
+        if (null === $grp) {
+            // is there a unique key group?
+            if ($this->extConf['uniqueKeyGroup']) {
+                $grp = $this->extConf['uniqueKeyGroup'];
+            } else {
+                $grp = $this->fetchUserGroup($this->extConf['dummyUser'], (int) $this->extConf['dummyUserPid']);
             }
         }
 
-        if (! $grp) {
+        //If DummyUser Group is not found, throw an Exception
+        if (!$grp) {
             // whoops, no group found
             throw new Exception('DocCheck Authentication: Could not find front end user group '.$grp);
         }
-
         return $grp;
     }
 
@@ -301,7 +315,7 @@ class DocCheckAuthenticationService extends AuthenticationService
      * @throws DBALException
      * @throws \Doctrine\DBAL\Driver\Exception
      */
-    protected function fetchDummyUserGroup($username, $pid)
+    protected function fetchUserGroup($username, $pid)
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
         $result = $queryBuilder
@@ -344,7 +358,7 @@ class DocCheckAuthenticationService extends AuthenticationService
 
     protected function isValidMd5($md5)
     {
-        return ! empty($md5) && preg_match('/^[a-f0-9]{32}$/', $md5);
+        return !empty($md5) && preg_match('/^[a-f0-9]{32}$/', $md5);
     }
 
     /**
@@ -360,7 +374,7 @@ class DocCheckAuthenticationService extends AuthenticationService
      */
     protected function authDummyUser($user, $dcVal)
     {
-        if (! $this->isDummyUser($user)) {
+        if (!$this->isDummyUser($user)) {
             // oops, not the dummy user. Try other auth methods.
             return 100;
         }
@@ -385,7 +399,7 @@ class DocCheckAuthenticationService extends AuthenticationService
         $dcLoginId = $_GET['login_id'] ?? null;
         $dcCode = $_GET['code'] ?? null;
 
-        if (! $this->isUniqueUser($user)) {
+        if (!$this->isUniqueUser($user)) {
             // not a unique user, try other auth methods.
             return 100;
         }
@@ -425,7 +439,7 @@ class DocCheckAuthenticationService extends AuthenticationService
     protected function isDummyUser($user)
     {
         return (int) $user['pid'] === (int) $this->extConf['dummyUserPid']
-             && $user['username'] === $this->extConf['dummyUser'];
+            && $user['username'] === $this->extConf['dummyUser'];
     }
 
     /**
@@ -438,7 +452,7 @@ class DocCheckAuthenticationService extends AuthenticationService
     protected function isUniqueUser($user)
     {
         // if uniquekey is not even enabled, this can't be a unique key user.
-        if (! $this->extConf['uniqueKeyEnable']) {
+        if (!$this->extConf['uniqueKeyEnable']) {
             return false;
         }
 
@@ -448,7 +462,7 @@ class DocCheckAuthenticationService extends AuthenticationService
         }
 
         // match the username pattern
-        return ! (! preg_match('/^dc_[0-9a-f]{32}$/i', $user[$this->db_user['username_column']]));
+        return !(!preg_match('/^dc_[0-9a-f]{32}$/i', $user[$this->db_user['username_column']]));
     }
 
     /**
@@ -460,13 +474,13 @@ class DocCheckAuthenticationService extends AuthenticationService
     {
         $dummyUserName = $this->extConf['dummyUser'];
 
-        if (! $dummyUserName) {
+        if (!$dummyUserName) {
             throw new Exception('DocCheck Authentication: No Dummy User specified in Extension settings');
         }
 
         $user = $this->fetchUserRecord($dummyUserName);
 
-        if (! $user) {
+        if (!$user) {
             throw new Exception('DocCheck Authentication: Dummy User "'.$dummyUserName.'" was not found on the Page with the ID "'.$this->extConf['dummyUserPid'].'"');
         }
 

@@ -5,7 +5,7 @@ namespace Antwerpes\Typo3Docchecklogin\Controller;
 /*
  *  Copyright notice
  *
- *  (c) 2013 antwerpes ag <opensource@antwerpes.de>
+ *  (c) 2013 antwerpes ag <opensource@antwerpes.com>
  *  All rights reserved
  *
  *  The TYPO3 Extension ap_docchecklogin is licensed under the MIT License
@@ -38,7 +38,7 @@ use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
@@ -203,16 +203,12 @@ class DocCheckAuthenticationController extends ActionController
     protected function checkConfig()
     {
         $localizationUtility = GeneralUtility::makeInstance(LocalizationUtility::class);
+        $logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $errors = false;
 
         // IF Dc Param is empty
         if ('' === $this->extConf['dcParam']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.dcParam.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.dcParam.empty', 'typo3_docchecklogin'));
             $errors = true;
         }
 
@@ -220,12 +216,7 @@ class DocCheckAuthenticationController extends ActionController
         if ('1' !== $this->extConf['uniqueKeyEnable']) {
             // Is there is no dummy User
             if ('' === $this->extConf['dummyUser']) {
-                $this->addFlashMessage(
-                    $localizationUtility->translate('error.message.dummyUser.empty', 'typo3_docchecklogin'),
-                    '',
-                    AbstractMessage::ERROR,
-                    false
-                );
+                $logger->error($localizationUtility->translate('error.message.dummyUser.empty', 'typo3_docchecklogin'));
                 $errors = true;
             } else {
                 // check if dummy User exists
@@ -234,57 +225,32 @@ class DocCheckAuthenticationController extends ActionController
                     ->from('fe_users')->where($queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($this->extConf['dummyUser'])))->executeQuery()->fetchAssociative();
 
                 if (! $statement) {
-                    $this->addFlashMessage(
-                        $localizationUtility->translate('error.message.dummyUser.notfound', 'typo3_docchecklogin'),
-                        '',
-                        AbstractMessage::ERROR,
-                        false
-                    );
+                    $logger->error($localizationUtility->translate('error.message.dummyUser.notfound', 'typo3_docchecklogin'));
                     $errors = true;
                 }
             }
         }
 
         if ('' === $this->extConf['dummyUserPid']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.dummyUserPid.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.dummyUserPid.empty', 'typo3_docchecklogin'));
             $errors = true;
         } else {
             // check if pid exists
             $page = $this->pageRepository->getPage((int) $this->extConf['dummyUserPid']);
 
             if (0 === count($page)) {
-                $this->addFlashMessage(
-                    $localizationUtility->translate('error.message.dummyUserPid.notfound', 'typo3_docchecklogin'),
-                    '',
-                    AbstractMessage::ERROR,
-                    false
-                );
+                $logger->error($localizationUtility->translate('error.message.dummyUserPid.notfound', 'typo3_docchecklogin'));
                 $errors = true;
             }
         }
 
         if ('1' === $this->extConf['uniqueKeyEnable'] && '' === $this->extConf['clientSecret']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.clientSecret.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.clientSecret.empty', 'typo3_docchecklogin'));
             $errors = true;
         }
 
         if ('1' === $this->extConf['uniqueKeyEnable'] && '' === $this->extConf['uniqueKeyGroup']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.uniqueKeyGroup.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.uniqueKeyGroup.empty', 'typo3_docchecklogin'));
             $errors = true;
         } elseif ('1' === $this->extConf['uniqueKeyEnable'] && '' !== $this->extConf['uniqueKeyGroup']) {
             // check if usergroup exists
@@ -293,53 +259,28 @@ class DocCheckAuthenticationController extends ActionController
                 ->from('fe_groups')->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter((int) $this->extConf['uniqueKeyGroup'])))->executeQuery()->fetchAssociative();
 
             if (! $statement) {
-                $this->addFlashMessage(
-                    $localizationUtility->translate('error.message.uniqueKeyGroup.notfound', 'typo3_docchecklogin'),
-                    '',
-                    AbstractMessage::ERROR,
-                    false
-                );
+                $logger->error($localizationUtility->translate('error.message.uniqueKeyGroup.notfound', 'typo3_docchecklogin'));
                 $errors = true;
             }
         }
 
         if ('1' === $this->extConf['routingEnable'] && '' === $this->extConf['routingMap']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.routingMap.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.routingMap.notfound', 'typo3_docchecklogin'));
             $errors = true;
         }
 
         if ('1' === $this->extConf['crawlingEnable'] && '' === $this->extConf['crawlingIP']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.crawlingIP.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.crawlingIP.empty', 'typo3_docchecklogin'));
             $errors = true;
         }
 
         if ('1' === $this->extConf['crawlingEnable'] && '' === $this->extConf['crawlingUser'] && '' === $this->extConf['dummyUser']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.crawlingUser.empty', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.crawlingUser.empty', 'typo3_docchecklogin'));
             $errors = true;
         }
 
         if ('1' === $this->extConf['dcPersonalEnable'] && '0' === $this->extConf['uniqueKeyEnable']) {
-            $this->addFlashMessage(
-                $localizationUtility->translate('error.message.dcPersonalEnable.error', 'typo3_docchecklogin'),
-                '',
-                AbstractMessage::ERROR,
-                false
-            );
+            $logger->error($localizationUtility->translate('error.message.dcPersonalEnable.error', 'typo3_docchecklogin'));
             $errors = true;
         }
 
