@@ -41,7 +41,6 @@ use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -76,7 +75,25 @@ class DocCheckAuthenticationController extends ActionController
 
         // is logged in?
         if ($loggedIn) {
-            $this->loggedIn();
+            $redirectToUri = $this->getRedirectUriFromFeLogin() ?: $this->getRedirectUriFromCookie();
+
+            if ($redirectToUri) {
+                // Hook To overwrite the redirect
+                if (array_key_exists('typo3_docchecklogin', $GLOBALS['TYPO3_CONF_VARS']['EXT']) && array_key_exists('beforeRedirect', $GLOBALS['TYPO3_CONF_VARS']['EXT']['typo3_docchecklogin'])) {
+                    $_params = [
+                        'redirectToUri' => &$redirectToUri,
+                        'pObj' => &$this,
+                    ];
+
+                    foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['typo3_docchecklogin']['beforeRedirect'] as $_funcRef) {
+                        GeneralUtility::callUserFunction($_funcRef, $_params, $this);
+                    }
+                }
+
+                return $this->responseFactory
+                    ->createResponse(302)
+                    ->withHeader('Location', $redirectToUri);
+            }
         } else {
             $this->loggedOut($getParameter);
         }
@@ -88,32 +105,6 @@ class DocCheckAuthenticationController extends ActionController
         $this->view->assign('configError', $this->checkConfig());
 
         return $this->htmlResponse();
-    }
-
-    /**
-     * @throws DBALException
-     * @throws Exception
-     * @throws StopActionException
-     */
-    public function loggedIn(): void
-    {
-        $redirectToUri = $this->getRedirectUriFromFeLogin() ?: $this->getRedirectUriFromCookie();
-
-        if ($redirectToUri) {
-            // Hook To overwrite the redirect
-            if (array_key_exists('typo3_docchecklogin', $GLOBALS['TYPO3_CONF_VARS']['EXT']) && array_key_exists('beforeRedirect', $GLOBALS['TYPO3_CONF_VARS']['EXT']['typo3_docchecklogin'])) {
-                $_params = [
-                    'redirectToUri' => &$redirectToUri,
-                    'pObj' => &$this,
-                ];
-
-                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXT']['typo3_docchecklogin']['beforeRedirect'] as $_funcRef) {
-                    GeneralUtility::callUserFunction($_funcRef, $_params, $this);
-                }
-            }
-
-            $this->redirectToUri($redirectToUri);
-        }
     }
 
     public function loggedOut($getParameter): void
