@@ -2,7 +2,7 @@
     "name": "antwerpes/typo3-docchecklogin",
     "type": "typo3-cms-extension",
     "description": "Integrate DocCheck Login with your Project",
-    "version": "1.0.1",
+    "version": "2.0.3",
     "keywords": ["antwerpes", "docchecklogin", "typo3", "typo3-docchecklogin"],
     "homepage": "https://github.com/antwerpes/typo3_docchecklogin",
     "authors": [
