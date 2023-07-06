@@ -19,7 +19,7 @@
     "require": {
         "php": ">=7.4 || ~8.1",
         "ext-curl": "*",
-        "typo3/cms-core": "^11.5 || ^12"
+        "typo3/cms-core": "^11.5 || ^12.4"
     },
     "require-dev": {
         "typo3/tailor": "^1.5",
