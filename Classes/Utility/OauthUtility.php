@@ -16,9 +16,9 @@ class OauthUtility
      * When one is found, check if it is still valid
      * When it is not valid, try to generate a new token.
      *
-     * @param $clientId
-     * @param $clientSecret
-     * @param $code
+     * @param mixed $clientId
+     * @param mixed $clientSecret
+     * @param mixed $code
      *
      * @return bool
      *
@@ -55,9 +55,9 @@ class OauthUtility
     /**
      * Generate the Access Token with the given Parameters.
      *
-     * @param $clientId
-     * @param $clientSecret
-     * @param $code
+     * @param mixed $clientId
+     * @param mixed $clientSecret
+     * @param mixed $code
      *
      * @return bool
      *
@@ -90,9 +90,9 @@ class OauthUtility
      * Refresh the Access Token with the given refresh Token
      * When the Refresh Token is found, try to generate the access token new.
      *
-     * @param $clientId
-     * @param $clientSecret
-     * @param $code
+     * @param mixed $clientId
+     * @param mixed $clientSecret
+     * @param mixed $code
      *
      * @return bool
      *
@@ -146,7 +146,7 @@ class OauthUtility
     /**
      * Helper Class to Generate the curl response.
      *
-     * @param $url
+     * @param mixed $url
      *
      * @return mixed
      */

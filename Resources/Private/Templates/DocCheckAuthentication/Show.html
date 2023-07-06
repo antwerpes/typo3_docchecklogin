@@ -1,13 +1,7 @@
 <f:if condition="{configError}">
     <f:then>
         <b><f:translate key="error.message.title" /></b>
-        <f:flashMessages as="flashMessages">
-            <ul class="messages">
-                <f:for each="{flashMessages}" as="flashMessage">
-                    <li>{flashMessage.message}</li>
-                </f:for>
-            </ul>
-        </f:flashMessages>
+        <p><f:translate key="error.message.text" /></p>
     </f:then>
     <f:else>
         <f:if condition="{loggedIn}">

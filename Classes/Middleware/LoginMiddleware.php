@@ -62,18 +62,14 @@ class LoginMiddleware implements MiddlewareInterface
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
 
         return $queryBuilder->select('*')
-            ->from('fe_groups')
-            ->where(
-                $queryBuilder->expr()->eq('uid', $uid),
-            )
-            ->execute()->fetchAssociative();
+            ->from('fe_groups')->where($queryBuilder->expr()->eq('uid', $uid))->executeQuery()->fetchAssociative();
     }
 
     /**
      * Login a tmp User for current page.
      *
-     * @param $request
      * @param mixed $username
+     * @param mixed $request
      */
     protected function loginTmpUser($request, $username): void
     {

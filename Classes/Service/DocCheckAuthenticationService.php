@@ -23,8 +23,10 @@ class DocCheckAuthenticationService extends AuthenticationService
 
     public function initAuth($mode, $loginData, $authInfo, $pObj): void
     {
+        // DEPRECATED in Version 12
         $authInfo['db_user']['checkPidList'] = $this->extConf['dummyUserPid'];
         $authInfo['db_user']['check_pid_clause'] = ' AND pid = '.$authInfo['db_user']['checkPidList'].' ';
+
         parent::initAuth($mode, $loginData, $authInfo, $pObj);
     }
 
@@ -77,6 +79,10 @@ class DocCheckAuthenticationService extends AuthenticationService
         $dcCode = $_GET['code'] ?? null;
         $dcClientSecret = $this->extConf['clientSecret'] ?? null;
 
+        if (! $dcVal) {
+            return 100;
+        }
+
         // Check if needed Parameter for oauth are given
         // Else try to auth the Dummyuser
         if ($dcCode && $dcClientSecret && $this->extConf['uniqueKeyEnable']) {
@@ -111,7 +117,7 @@ class DocCheckAuthenticationService extends AuthenticationService
             $authenticateUser = $oauth->validateToken($dcLoginId, $dcClientSecret, $dcCode);
 
             if (! $authenticateUser) {
-                throw new Exception('DocCheck Authentication: User coudnt get authenticated.');
+                throw new Exception('DocCheck Authentication: User couldn\'t get authenticated.');
             }
 
             $userData = $oauth->getUserData();
@@ -151,9 +157,9 @@ class DocCheckAuthenticationService extends AuthenticationService
     }
 
     /**
-     * @param $username
-     * @param $group
-     * @param $pid
+     * @param mixed $username
+     * @param mixed $group
+     * @param mixed $pid
      *
      * @return false|mixed
      *
@@ -176,9 +182,7 @@ class DocCheckAuthenticationService extends AuthenticationService
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($dbUser['table']);
         $queryBuilder
-            ->insert($dbUser['table'])
-            ->values($insertArray)
-            ->execute();
+            ->insert($dbUser['table'])->values($insertArray)->executeStatement();
 
         // get the newly created user
         return $this->fetchUserRecord($username);
@@ -201,8 +205,8 @@ class DocCheckAuthenticationService extends AuthenticationService
     /**
      *  If DocCheck Personal parameters are detected, add them to the user object.
      *
-     * @param $user
-     * @param $userData
+     * @param mixed $user
+     * @param mixed $userData
      *
      * @return mixed
      *
@@ -256,7 +260,7 @@ class DocCheckAuthenticationService extends AuthenticationService
             foreach ($updateArr as $updKey => $updVal) {
                 $queryBuilder->set($updKey, $updVal);
             }
-            $queryBuilder->execute();
+            $queryBuilder->executeStatement();
         }
 
         return $user;
@@ -266,7 +270,7 @@ class DocCheckAuthenticationService extends AuthenticationService
      * get the group, into which generated users are supposed to be added. this can be a static configured group, or
      * - in combination with the routing feature, a resolved group id.
      *
-     * @param $dcVal
+     * @param mixed $dcVal
      *
      * @return int group id
      *
@@ -274,16 +278,24 @@ class DocCheckAuthenticationService extends AuthenticationService
      */
     protected function getUniqueUserGroupId($dcVal)
     {
-        $grp = $this->fetchDummyUserGroup($this->extConf['dummyUser'], (int) $this->extConf['dummyUserPid']);
+        $grp = null;
+
         // is routing enabled?
         if ($this->extConf['routingEnable']) {
             $grp = $this->getRoutedGroupId($dcVal);
+        }
 
-            if (null === $grp) {
-                $grp = $this->fetchDummyUserGroup($this->extConf['dummyUser'], (int) $this->extConf['dummyUserPid']);
+        // Is no group found use the DummyUser Group
+        if (null === $grp) {
+            // is there a unique key group?
+            if ($this->extConf['uniqueKeyGroup']) {
+                $grp = $this->extConf['uniqueKeyGroup'];
+            } else {
+                $grp = $this->fetchUserGroup($this->extConf['dummyUser'], (int) $this->extConf['dummyUserPid']);
             }
         }
 
+        // If DummyUser Group is not found, throw an Exception
         if (! $grp) {
             // whoops, no group found
             throw new Exception('DocCheck Authentication: Could not find front end user group '.$grp);
@@ -295,15 +307,15 @@ class DocCheckAuthenticationService extends AuthenticationService
     /**
      * Fetch the dummy usergroup for the given username, on a specific PID.
      *
-     * @param $username
-     * @param $pid
+     * @param mixed $username
+     * @param mixed $pid
      *
      * @return false|mixed
      *
      * @throws DBALException
      * @throws \Doctrine\DBAL\Driver\Exception
      */
-    protected function fetchDummyUserGroup($username, $pid)
+    protected function fetchUserGroup($username, $pid)
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
         $result = $queryBuilder
@@ -325,7 +337,7 @@ class DocCheckAuthenticationService extends AuthenticationService
     /**
      * Read the routing map and find a suitable group id for this user.
      *
-     * @param $dcVal
+     * @param mixed $dcVal
      *
      * @return null|int ID of the associated group, or null if none found
      */
@@ -354,9 +366,9 @@ class DocCheckAuthenticationService extends AuthenticationService
      * ... the given user is the dummy user
      * ... the dummy may sign in with this dc-param.
      *
-     * @param $user
      * @param string
      * @param mixed $dcVal
+     * @param mixed $user
      *
      * @return 100|200|bool
      */
@@ -420,20 +432,20 @@ class DocCheckAuthenticationService extends AuthenticationService
     /**
      * Find out whether a given user is the dummy (non-unique).
      *
-     * @param $user
+     * @param mixed $user
      *
      * @return bool
      */
     protected function isDummyUser($user)
     {
         return (int) $user['pid'] === (int) $this->extConf['dummyUserPid']
-             && $user['username'] === $this->extConf['dummyUser'];
+            && $user['username'] === $this->extConf['dummyUser'];
     }
 
     /**
      * Detect whether a given user has been generated by this extension.
      *
-     * @param $user
+     * @param mixed $user
      *
      * @return bool
      */

@@ -1,9 +1,0 @@
-services:
-  # general settings
-  _defaults:
-    autowire: true
-    autoconfigure: true
-    public: false
-
-  Antwerpes\Typo3Docchecklogin\:
-    resource: '../Classes/*'
