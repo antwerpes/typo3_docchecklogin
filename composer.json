@@ -4,6 +4,7 @@
     "description": "Integrate DocCheck Login with your Project",
     "keywords": ["antwerpes", "docchecklogin", "typo3", "typo3-docchecklogin"],
     "homepage": "https://github.com/antwerpes/typo3_docchecklogin",
+    "version": "2.0.6",
     "authors": [
         {
             "name": "Sabrina Zwirner",
