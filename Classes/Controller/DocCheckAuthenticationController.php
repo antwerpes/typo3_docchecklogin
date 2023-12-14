@@ -134,7 +134,7 @@ class DocCheckAuthenticationController extends ActionController
         if ('custom' === $this->settings['loginLayout']) {
             $templateKey = $this->settings['customLayout'];
         } else {
-            $templateKey = $this->settings['loginLayout'].'_red';
+            $templateKey = 'login_'.$this->settings['loginLayout'];
         }
 
         $this->view->assignMultiple([

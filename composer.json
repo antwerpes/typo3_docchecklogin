@@ -57,6 +57,6 @@
             "extension-key": "typo3_docchecklogin"
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
