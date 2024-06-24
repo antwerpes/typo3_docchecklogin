@@ -111,6 +111,7 @@ class DocCheckAuthenticationController extends ActionController
     {
         $settings = $this->settings;
         $redirectUrl = $getParameter['redirect_url'] ?? null;
+
         // ... or if the redirect-option is chosen in the plugin
         if (! $redirectUrl && array_key_exists('redirect', $settings)) {
             $redirectUrl = $this->uriBuilder->reset()->setTargetPageUid((int) $settings['redirect'])->setLinkAccessRestrictedPages(true)->setCreateAbsoluteUri(true)->build();

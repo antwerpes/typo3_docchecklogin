@@ -16,6 +16,7 @@ class DoccheckRequestTokenEventListener
         $user = $event->getUser();
         $queryParameter = $event->getRequest()->getQueryParams();
         $requestToken = $event->getRequestToken();
+
         // fine, there is a valid request token
         if ($requestToken instanceof RequestToken) {
             return;

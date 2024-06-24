@@ -7,7 +7,7 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 defined('TYPO3') || exit;
-(function (): void {
+(static function (): void {
     $GLOBALS['TYPO3_CONF_VARS']['LOG']['Antwerpes']['Typo3Docchecklogin']['Controller']['writerConfiguration'] = [
         // configuration for ERROR level log entries
         \TYPO3\CMS\Core\Log\LogLevel::ERROR => [

@@ -129,7 +129,6 @@ class DocCheckAuthenticationService extends AuthenticationService
             throw new Exception('DocCheck Authentication: Unique key is not valid.');
         }
         $group = $this->getUniqueUserGroupId($dcVal);
-
         // try and fetch the user
         $username = 'dc_'.$uniqKey;
         $userObject = $this->fetchUserRecord($username);
@@ -145,6 +144,7 @@ class DocCheckAuthenticationService extends AuthenticationService
             if ($userObject['usergroup'] !== $group) {
                 $userObject = $this->updateGroupId($userObject, $group);
             }
+
             // now in case we have Personal enabled and a valid authenticated User, save the personal data in the database.
             if ($authenticateUser && $this->extConf['dcPersonalEnable']) {
                 $userObject = $this->augmentDcPersonal($userObject, $userData);
