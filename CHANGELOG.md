@@ -2,6 +2,14 @@
 
 All notable changes to `antwerpes/typo3-docchecklogin` will be documented in this file.
 
+## Release 2.0.8 - 2024-06-26
+
+### What's Changed
+
+* Remove deprecated dc Login GET Request and add an TYPO3 POST Request
+
+**Full Changelog**: https://github.com/antwerpes/typo3_docchecklogin/compare/2.0.6...2.0.8
+
 ## 2.0.6 - 2023-12-14
 
 ### What's Changed
