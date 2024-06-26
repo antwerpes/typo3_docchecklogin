@@ -217,7 +217,7 @@ class DocCheckAuthenticationService extends AuthenticationService
         // If there was an error while recieving the userData
         // 1. When the user revoked the agreement to send his data
         // 2. When you don't have the business licence
-        if (property_exists($userData, 'error')) {
+        if (array_key_exists('error',$userData)) {
             return $user;
         }
         $paramMapping = [
@@ -240,8 +240,8 @@ class DocCheckAuthenticationService extends AuthenticationService
 
         foreach ($paramMapping as $dcFieldname => $typo3Fieldname) {
             // only touch the fields that have been provided by dcPersonal
-            if (property_exists($userData, $dcFieldname)) {
-                $val = utf8_encode($userData->{$dcFieldname});
+            if (array_key_exists($dcFieldname,$userData)) {
+                $val = utf8_encode($userData[$dcFieldname]);
                 $user[$typo3Fieldname] = html_entity_decode($val);
                 $updateArr[$typo3Fieldname] = html_entity_decode($val);
             }

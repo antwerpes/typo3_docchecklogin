@@ -3,6 +3,8 @@
 namespace Antwerpes\Typo3Docchecklogin\Utility;
 
 use TYPO3\CMS\Backend\Routing\Exception\InvalidRequestTokenException;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class OauthUtility
 {
@@ -27,22 +29,17 @@ class OauthUtility
     public function validateToken($clientId, $clientSecret, $code)
     {
         if (array_key_exists('DC_ACCESS_TOKEN', $GLOBALS)) {
-            $curl = curl_init();
-            curl_setopt_array($curl, [
-                CURLOPT_URL => $this->validateTokenUrl.'?access_token='.$GLOBALS['DC_ACCESS_TOKEN'],
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'GET',
-            ]);
 
-            $response = json_decode(curl_exec($curl));
-            curl_close($curl);
+            $requestFactory= GeneralUtility::makeInstance(RequestFactory::class);
+            $url = $this->validateTokenUrl.'?access_token='.$GLOBALS['DC_ACCESS_TOKEN'];
+            $additionalOptions = [
+                'http_errors' => false,
+            ];
+            $response = $requestFactory->request($url, 'POST', $additionalOptions);
+            $result = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
-            if ($response->boolIsValid) {
+
+            if (array_key_exists('boolIsValid', $result) && $result['boolIsValid']) {
                 return true;
             }
 
@@ -65,18 +62,22 @@ class OauthUtility
      */
     public function generateToken($clientId, $clientSecret, $code)
     {
+        $requestFactory= GeneralUtility::makeInstance(RequestFactory::class);
         $url = $this->generateTokenUrl.'?client_id='.$clientId.'&client_secret='.$clientSecret.'&code='.$code.'&grant_type=authorization_code';
-        $response = $this->createCurl($url);
+        $additionalOptions = [
+            'http_errors' => false,
+        ];
+        $response = $requestFactory->request($url, 'POST', $additionalOptions);
+        $result = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
-        if (property_exists($response, 'error')) {
-            throw new InvalidRequestTokenException(
-                'DocCheck Authentication: '.$response->error_description
+        if ($response->getStatusCode() !== 200) {
+            throw new \RuntimeException(
+                'DocCheck Authentication Error ' . $response->getStatusCode() . '- ' . $result['error_description']
             );
         }
-
-        if (property_exists($response, 'access_token')) {
-            $GLOBALS['DC_ACCESS_TOKEN'] = $response->access_token;
-            $GLOBALS['DC_REFRESH_TOKEN'] = $response->refresh_token;
+        if (array_key_exists( 'access_token', $result)) {
+            $GLOBALS['DC_ACCESS_TOKEN'] = $result['access_token'];
+            $GLOBALS['DC_REFRESH_TOKEN'] = $result['refresh_token'];
 
             return true;
         }
@@ -101,11 +102,16 @@ class OauthUtility
     public function refreshToken($clientId, $clientSecret, $code)
     {
         if (array_key_exists('DC_REFRESH_TOKEN', $GLOBALS)) {
+            $requestFactory= GeneralUtility::makeInstance(RequestFactory::class);
             $url = $this->generateTokenUrl.'?client_id='.$clientId.'&client_secret='.$clientSecret.'&refresh_token='.$GLOBALS['DC_REFRESH_TOKEN'].'&grant_type=refresh_token';
-            $response = $this->createCurl($url);
+            $additionalOptions = [
+                'http_errors' => false,
+            ];
+            $response = $requestFactory->request($url, 'POST', $additionalOptions);
+            $result = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
 
-            if ($response->access_token) {
-                $GLOBALS['DC_ACCESS_TOKEN'] = $response->access_token;
+            if (array_key_exists('access_token', $result)) {
+                $GLOBALS['DC_ACCESS_TOKEN'] = $result['access_token'];
 
                 return true;
             }
@@ -127,11 +133,18 @@ class OauthUtility
     public function getUserData()
     {
         if (array_key_exists('DC_ACCESS_TOKEN', $GLOBALS)) {
+            $requestFactory= GeneralUtility::makeInstance(RequestFactory::class);
             $url = $this->userDataUrl.'?access_token='.$GLOBALS['DC_ACCESS_TOKEN'];
-            $response = $this->createCurl($url);
 
-            if ($response->uniquekey) {
-                return $response;
+            $additionalOptions = [
+                'http_errors' => false,
+            ];
+            $response = $requestFactory->request($url, 'POST', $additionalOptions);
+            $result = json_decode($response->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR);
+
+
+            if (array_key_exists('uniquekey', $result) && $result['uniquekey']) {
+                return $result;
             }
             throw new InvalidRequestTokenException(
                 'DocCheck Authentication: No User Found with given access token'
@@ -141,33 +154,5 @@ class OauthUtility
                 'DocCheck Authentication: Invalid Request'
             );
         }
-    }
-
-    /**
-     * Helper Class to Generate the curl response.
-     *
-     * @param mixed $url
-     *
-     * @return mixed
-     */
-    public function createCurl($url)
-    {
-        $curl = curl_init();
-
-        curl_setopt_array($curl, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-        ]);
-
-        $response = json_decode(curl_exec($curl));
-        curl_close($curl);
-
-        return $response;
     }
 }
