@@ -14,9 +14,10 @@ ExtensionUtility::registerPlugin(
 // Add flexForms for content element configuration
 $pluginSignature = 'typo3docchecklogin_doccheckauthentication';
 
-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginSignature] = 'pi_flexform';
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', '--div--;Configuration,pi_flexform,', $pluginSignature, 'after:subheader');
 ExtensionManagementUtility::addPiFlexFormValue(
-    $pluginSignature,
+    '*',
     // Flexform configuration schema file
-    'FILE:EXT:typo3_docchecklogin/Configuration/FlexForms/Setup.xml'
+    'FILE:EXT:typo3_docchecklogin/Configuration/FlexForms/Setup.xml',
+    $pluginSignature
 );

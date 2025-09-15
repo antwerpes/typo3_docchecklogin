@@ -28,27 +28,8 @@ defined('TYPO3') || exit;
         // non-cacheable actions
         [
             DocCheckAuthenticationController::class => 'show',
-        ]
-    );
-
-    // wizards
-    ExtensionManagementUtility::addPageTSConfig(
-        'mod {
-            wizards.newContentElement.wizardItems.plugins {
-                elements {
-                    doccheckauthentication {
-                        iconIdentifier = docchecklogin-plugin-product
-                        title = LLL:EXT:typo3_docchecklogin/Resources/Private/Language/locallang_backend.xlf:plugin.name
-                        description = LLL:EXT:typo3_docchecklogin/Resources/Private/Language/locallang_backend.xlf:plugin.description
-                        tt_content_defValues {
-                            CType = list
-                            list_type = typo3docchecklogin_doccheckauthentication
-                        }
-                    }
-                }
-                show = *
-            }
-       }'
+        ],
+        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
     );
 
     ExtensionManagementUtility::addService(

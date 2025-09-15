@@ -1,0 +1,125 @@
+From 65fe8bef39f438ca9cae6764abb499e1073f590b Mon Sep 17 00:00:00 2001
+From: Fynn Menk <mail@fynnmenk.de>
+Date: Mon, 4 Aug 2025 15:14:44 +0200
+Subject: [PATCH] feat: Add TYPO3 v13 compatibility
+
+- Add PLUGIN_TYPE_CONTENT_ELEMENT parameter to configurePlugin()
+- Migrate subtypes_addlist to addToAllTCAtypes API
+- Update addPiFlexFormValue parameter order for v13
+- Extend TYPO3 constraint to support v11.5-13.4
+- Separate PageTS config into dedicated .tsconfig file
+- Remove hardcoded PageTS from ext_localconf.php
+
+Maintains backward compatibility with TYPO3 v11.5, v12.4, and v13.x
+---
+ .../NewContentElementWizard.tsconfig          | 16 +++++++++++++
+ Configuration/TCA/Overrides/tt_content.php    |  7 +++---
+ composer.json                                 |  2 +-
+ ext_emconf.php                                |  2 +-
+ ext_localconf.php                             | 23 ++-----------------
+ 5 files changed, 24 insertions(+), 26 deletions(-)
+ create mode 100644 Configuration/PageTsConfig/NewContentElementWizard.tsconfig
+
+diff --git a/Configuration/PageTsConfig/NewContentElementWizard.tsconfig b/Configuration/PageTsConfig/NewContentElementWizard.tsconfig
+new file mode 100644
+index 0000000..5d85cde
+--- /dev/null
++++ b/Configuration/PageTsConfig/NewContentElementWizard.tsconfig
+@@ -0,0 +1,16 @@
++mod {
++    wizards.newContentElement.wizardItems.plugins {
++        elements {
++            doccheckauthentication {
++                iconIdentifier = docchecklogin-plugin-product
++                title = LLL:EXT:typo3_docchecklogin/Resources/Private/Language/locallang_backend.xlf:plugin.name
++                description = LLL:EXT:typo3_docchecklogin/Resources/Private/Language/locallang_backend.xlf:plugin.description
++                tt_content_defValues {
++                    CType = list
++                    list_type = typo3docchecklogin_doccheckauthentication
++                }
++            }
++        }
++        show = *
++    }
++}
+diff --git a/Configuration/TCA/Overrides/tt_content.php b/Configuration/TCA/Overrides/tt_content.php
+index 866421c..e4a009c 100644
+--- a/Configuration/TCA/Overrides/tt_content.php
++++ b/Configuration/TCA/Overrides/tt_content.php
+@@ -14,9 +14,10 @@ ExtensionUtility::registerPlugin(
+ // Add flexForms for content element configuration
+ $pluginSignature = 'typo3docchecklogin_doccheckauthentication';
+ 
+-$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginSignature] = 'pi_flexform';
++\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addToAllTCAtypes('tt_content', '--div--;Configuration,pi_flexform,', $pluginSignature, 'after:subheader');
+ ExtensionManagementUtility::addPiFlexFormValue(
+-    $pluginSignature,
++    '*',
+     // Flexform configuration schema file
+-    'FILE:EXT:typo3_docchecklogin/Configuration/FlexForms/Setup.xml'
++    'FILE:EXT:typo3_docchecklogin/Configuration/FlexForms/Setup.xml',
++    $pluginSignature
+ );
+diff --git a/composer.json b/composer.json
+index 7528a54..cbf3b6e 100644
+--- a/composer.json
++++ b/composer.json
+@@ -19,7 +19,7 @@
+     "require": {
+         "php": ">=7.4 || ~8.1",
+         "ext-curl": "*",
+-        "typo3/cms-core": "^11.5 || ^12.4"
++        "typo3/cms-core": "^11.5 || ^12.4 || ^13.4"
+     },
+     "require-dev": {
+         "typo3/tailor": "^1.5",
+diff --git a/ext_emconf.php b/ext_emconf.php
+index 7ef01c4..74cfe18 100644
+--- a/ext_emconf.php
++++ b/ext_emconf.php
+@@ -10,7 +10,7 @@ $EM_CONF[$_EXTKEY] = [
+     'version' => '2.0.8',
+     'constraints' => [
+         'depends' => [
+-            'typo3' => '11.5.0-12.4.99',
++            'typo3' => '11.5.0-13.4.99',
+         ],
+         'conflicts' => [],
+         'suggests' => [],
+diff --git a/ext_localconf.php b/ext_localconf.php
+index b81e122..ddaaa91 100644
+--- a/ext_localconf.php
++++ b/ext_localconf.php
+@@ -28,27 +28,8 @@ defined('TYPO3') || exit;
+         // non-cacheable actions
+         [
+             DocCheckAuthenticationController::class => 'show',
+-        ]
+-    );
+-
+-    // wizards
+-    ExtensionManagementUtility::addPageTSConfig(
+-        'mod {
+-            wizards.newContentElement.wizardItems.plugins {
+-                elements {
+-                    doccheckauthentication {
+-                        iconIdentifier = docchecklogin-plugin-product
+-                        title = LLL:EXT:typo3_docchecklogin/Resources/Private/Language/locallang_backend.xlf:plugin.name
+-                        description = LLL:EXT:typo3_docchecklogin/Resources/Private/Language/locallang_backend.xlf:plugin.description
+-                        tt_content_defValues {
+-                            CType = list
+-                            list_type = typo3docchecklogin_doccheckauthentication
+-                        }
+-                    }
+-                }
+-                show = *
+-            }
+-       }'
++        ],
++        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
+     );
+ 
+     ExtensionManagementUtility::addService(
+-- 
+2.47.0
+
