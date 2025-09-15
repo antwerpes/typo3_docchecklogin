@@ -2,6 +2,14 @@
 
 All notable changes to `antwerpes/typo3-docchecklogin` will be documented in this file.
 
+## Release 2.1.0 - 2025-09-15
+
+### What's Changed
+
+* TYPO3 v13 support
+
+**Full Changelog**: https://github.com/antwerpes/typo3_docchecklogin/compare/2.0.8...2.1.0
+
 ## Release 2.0.8 - 2024-06-26
 
 ### What's Changed
