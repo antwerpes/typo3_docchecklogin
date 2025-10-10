@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 $selectColumns = [];
 $numberColumns = [];
@@ -45,7 +47,12 @@ foreach ($selectColumns as $columnKey => $column) {
     ];
 
     foreach ($column as $key => $value) {
-        $tempColumns[$columnKey]['config']['items'][] = [$key, $value];
+        $versionInfo = GeneralUtility::makeInstance(Typo3Version::class);
+        if (version_compare($versionInfo->getBranch(), '12.0', '>=')) {
+            $tempColumns[$columnKey]['config']['items'][] = ['label' => $key, 'value' => $value];
+        } else {
+            $tempColumns[$columnKey]['config']['items'][] = [$key, $value];
+        }
     }
 }
 
